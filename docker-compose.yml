@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dental
+      POSTGRES_PASSWORD: demo_db_password_change_me
+      POSTGRES_DB: dental_research
+    volumes:
+      - dental_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dental -d dental_research"]
+      interval: 5s
+      retries: 12
+  web:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-8085}:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg://dental:demo_db_password_change_me@db:5432/dental_research
+      SECRET_KEY: ${SECRET_KEY:-demo-do-not-expose-to-internet}
+      DEMO_SEED: "true"
+      COOKIE_SECURE: "false"
+volumes:
+  dental_pgdata:
