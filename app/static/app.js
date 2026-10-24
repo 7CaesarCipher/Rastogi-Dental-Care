@@ -36,6 +36,20 @@ const trial = F('trial_id','Study protocol','trial');
 const plan = F('plan_id','Linked care plan','plan');
 const visitDay = F('visit_on','Visit date','date',{value:dateLocal()});
 const defaultDate = dateLocal();
+// Facilities listed on the hospital's sign; shared by care and scheduling forms.
+const hospitalServices = [
+  ['Oral & maxillofacial surgery','मुख एवं दन्त शल्य'],
+  ['Cosmetic dentistry','प्रसाधन एवं सौंदर्य उपचार'],
+  ['Orthodontic treatment','ऑर्थोडॉन्टिक उपचार'],
+  ['Periodontal treatment','पीरिओडॉन्टल उपचार'],
+  ['Crown & bridge','क्राउन एंड ब्रिज'],
+  ['Dental implants','डेंटल इम्प्लांट'],
+  ['Smile designing','स्माइल डिजाइनिंग'],
+  ['Root canal treatment','रूट कैनाल थेरेपी'],
+  ['Prosthetic treatment','प्रोस्थेटिक ट्रीटमेंट'],
+  ['Dental X-ray','डेंटल एक्स-रे']
+];
+const serviceOptions = hospitalServices.map(([name,hindi]) => [name, `${name} / ${hindi}`]);
 const formConfigs = {
   patients:[F('name','Full name'),F('dob','Date of birth','date'),F('gender','Gender','select',{options:['Female','Male','Other','Not specified']}),
            F('phone','Phone'),F('allergies','Allergies','textarea',{wide:true,required:false}),F('medical_alerts','Medical alerts','textarea',{wide:true,required:false}),F('medical_history','Medical history','textarea',{wide:true,required:false})],
@@ -46,12 +60,12 @@ const formConfigs = {
             F('finding','Dental finding','select',{options:['Caries','Periodontal pocket','Gingivitis','Pulpitis','Missing tooth','Restored','Fracture','Impaction','Tooth mobility','Healthy']}),
             F('severity','Severity','select',{options:['Mild','Moderate','Severe','Not applicable']}),F('probing_mm','Probing depth (mm)','number',{required:false,min:0,max:15}),
             F('bleeding','Bleeding on probing','check',{required:false}),F('notes','Finding notes','textarea',{wide:true,required:false})],
-  'care-plans':[patient,tooth,F('diagnosis','Diagnosis'),F('procedure','Planned treatment','select',{options:['Composite restoration','Root canal treatment','Scaling and root planing','Dental extraction','Crown preparation','Dental implant','Complete denture','Partial denture','Orthodontic treatment','Periodontal surgery','Fluoride application','Preventive cleaning','Other']}),
+  'care-plans':[patient,tooth,F('diagnosis','Diagnosis'),F('procedure','Planned treatment','select',{options:[...serviceOptions,'Composite restoration','Scaling and root planing','Dental extraction','Crown preparation','Dental implant','Complete denture','Partial denture','Periodontal surgery','Fluoride application','Preventive cleaning','Other']}),
                 F('sequence','Treatment phase','select',{options:['Emergency care','Disease control','Definitive care','Rehabilitation','Maintenance / recall']}),
                 F('priority','Priority','select',{options:['Routine','Urgent','Emergency']}),F('estimated_cost','Estimated cost (INR)','number',{value:0,min:0}),
                 F('trial_id','Research protocol (optional)','trial',{required:false})],
   appointments:[patient,F('scheduled_at','Date & time','datetime-local',{value:dateTimeLocal()}),F('provider','Dentist / clinician',{value:'Dr. A. Mehta'}),
-                F('purpose','Visit purpose','select',{options:['Consultation','Restoration','Root canal','Periodontal care','Implant','Oral surgery','Follow-up','Research review','Other']}),
+                F('purpose','Visit purpose','select',{options:['Consultation',...serviceOptions,'Restoration','Root canal','Periodontal care','Implant','Oral surgery','Follow-up','Research review','Other']}),
                 F('notes','Notes','textarea',{wide:true,required:false})],
   procedures:[patient,plan,F('performed_on','Treatment date','date',{value:defaultDate}),F('clinician','Operator',{value:'Dr. A. Mehta'}),
               F('performed','Procedure description'),F('outcome','Outcome','select',{options:['Completed','In progress','Deferred','Complication']}),
